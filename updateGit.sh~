@@ -1,7 +1,0 @@
-#!/bin/bash
-
-git add -u
-git commit -m "Add file"
-git push origin gh-pages
-
-
