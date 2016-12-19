@@ -2,6 +2,6 @@
 
 git add -A
 git commit -m "Add file"
-git push gh-pages
+git push origin gh-pages
 
 
