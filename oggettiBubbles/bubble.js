@@ -32,8 +32,10 @@ function Bubble(x, y) {
     this.isFinished = function(){
       if(this.lifespan<0){
         return true;
+      }else{
+        return false;
       }
-    }
+    };
 
     this.ccolor = function() {
         if (green(this.col) == 127) {

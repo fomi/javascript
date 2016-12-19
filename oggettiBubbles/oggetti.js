@@ -5,7 +5,7 @@ var n_bubbles = 20;
 
 function setup() {
     createCanvas(400, 400);
-    frameRate(30);
+    // frameRate(30);
     for (var i = 0; i < n_bubbles; i++) {
         bubbles.push(new Bubble(random(0, height), random(0, width)));
     }
@@ -30,7 +30,7 @@ function draw() {
     background(0);
     // for (var i = 0; i < bubbles.length; i++) {
 //scorrimento contrario dell'array per evitare che all'eliminazione di un oggetto
-//venga saltato dal if l'elemento successivo a quello eliminato    
+//venga saltato dal if l'elemento successivo a quello eliminao
     for (var i = bubbles.length-1; i >= 0; i--) {
         bubbles[i].update();
         bubbles[i].display();
