@@ -1,7 +1,7 @@
 function Bubble(x, y) {
     this.x = x;
     this.y = y;
-    this.radius = 10;
+    this.radius = 5;
     this.col = color(0, 127, 255, 155);
 
     this.display = function() {
@@ -21,10 +21,10 @@ function Bubble(x, y) {
 
     this.intersects = function(other) {
         var d = dist(this.x, this.y, other.x, other.y);
-        if (d < this.radius + other.radius + 4) {
+        if (d < this.radius + other.radius) {
             return true;
         } else {
             return false;
         }
-    }
+    };
 }
