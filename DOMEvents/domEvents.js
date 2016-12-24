@@ -26,10 +26,12 @@ function setup() {
     slider.position(180,480);
 
     nameInput = createInput('Type your name');
-    nameInput.changed(updateText);
-    // nameInput.input(updateText);
+    nameInput.changed(updateText);   //--> viene modificato solo ad azione finita
+    // nameInput.input(updateText); //--> viene continuamente cambiato in base all'
+                                    // all'input dell'utente
 
 }
+
 
 function draw() {
     background(bgcolor);
