@@ -81,7 +81,7 @@ function updateISSPosition() {
 
 function weatherQuery() {
 
-    var api = 'http://api.openweathermap.org/data/2.5/weather?q=';
+    var api = 'https://api.openweathermap.org/data/2.5/weather?q=';
     var cityQuery = select('#city');
     var city = cityQuery.value();
     var units = '&units=metric';
