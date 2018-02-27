@@ -338,7 +338,7 @@ function gameConditionStats(){
   if(aliensFleet.length != 0){
     if(aliensFleet[aliensFleet.length-1][0].y>=450 || ship.hp==0){     //game over se gli aliens arrivano in base o se la vita della nave è zero
         // gamePanel.flag=1;
-        // aliensFleet.length=0;
+        // aliensFleet.length=0 ;
         // alienLasers.length=0;
         // shipLaserShot.length=0;
         // motherShips.length=0;
