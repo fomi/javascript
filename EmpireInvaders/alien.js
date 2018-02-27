@@ -3,7 +3,7 @@ function Alien(x, y) {
     this.y = y;
     this.r = 8;
     this.color = [0,0,255];
-    this.speed = 0.3;
+    this.speed = 0.4;
     this.points = 0;
     this.model;
 

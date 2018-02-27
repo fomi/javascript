@@ -6,6 +6,8 @@ var alienLasers = [];     //array laser degli alieni
 var aliensFleet = [];     //flotta alieni
 var direction;            //direzione movimento alieni +1dx -1sx
 
+var laserShotTimer;
+
 var moveAlienFlag;        //se 1 la flotta aliena viene shiftata verso il basso
 var aliensFleetRow;       //numero di righe di alieni nella flotta
 var aliensPerRow;         //numero di alieni per riga
@@ -60,6 +62,7 @@ function preload(){
 
 function setup() {
     gameStatus=0;          //flag di gioco, per passare da status a status DEFAULT 0
+    laserShotTimer = 0;
     gameSetup();          //setup variabili del gioco
 }
 
@@ -190,10 +193,18 @@ function gameCommand(){
   }
 }
 
+function changeLaserShotTimer(){
+  laserShotTimer = 0;
+}
+
 function keyPressed() {
     if (keyCode == UP_ARROW) {                  //comdando spara laser
-        var laser = new Laser(ship.x, ship.y);
-        lasers.push(laser);
+        if(laserShotTimer == 0){
+          laserShotTimer = 1;
+          var laser = new Laser(ship.x, ship.y);
+          lasers.push(laser);
+          setTimeout(changeLaserShotTimer,300);
+        }
     }
     if(keyCode == 13){
         if(gameStatus==5 || gameStatus == 6){     //dalla legenda o da un avvio successivo al primo al gioco
@@ -366,7 +377,7 @@ function lasersCrashs(){
   //e visualizzata un'esplosione, inoltre vengono aggiunti due punti
   for(var i=alienLasers.length-1;i>=0;i--){
     for(var j=lasers.length-1;j>=0;j--){
-      if( ( (lasers[j].x>=alienLasers[i].x-10)&&(lasers[j].x<=alienLasers[i].x+10) )
+      if( ( (lasers[j].x>=alienLasers[i].x-5)&&(lasers[j].x<=alienLasers[i].x+5) )
           &&
           ( (lasers[j].y>=alienLasers[i].y-5)&&(lasers[j].y<=alienLasers[i].y+5)   )
          ){
@@ -392,7 +403,7 @@ function getExplosion(laserX,laserY){
 function showExplosions(){
     for(var i=explosion.length-1;i>=0;i--){
       explosion[i].show();
-      if(millis()>explosion[i].spawnTime+1500){
+      if(millis()>explosion[i].spawnTime+1000){
         explosion.splice(i,1);
       }
     }
