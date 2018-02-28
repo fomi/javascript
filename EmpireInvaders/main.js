@@ -76,6 +76,7 @@ function draw() {
         break;
 
       case 1:   //gioco
+        autoFire();                 //fuoco automatico della nave
         alienLasersShot();          //colpi delle navi aliene
         shipLaserShot();            //colpi della navicella
         gameConditionStats();       //condizioni di vittoria/sconfitta
@@ -144,6 +145,15 @@ function loadModTextFont(){
   }
 }
 
+function autoFire(){
+  if(laserShotTimer == 0){
+    laserShotTimer = 1;
+    var laser = new Laser(ship.x, ship.y);
+    lasers.push(laser);
+    setTimeout(changeLaserShotTimer,300);
+  }
+}
+
 function gameSetup(){
   createCanvas(600, 500);     //creazione campo di gioco
 
@@ -198,14 +208,14 @@ function changeLaserShotTimer(){
 }
 
 function keyPressed() {
-    if (keyCode == UP_ARROW) {                  //comdando spara laser
-        if(laserShotTimer == 0){
-          laserShotTimer = 1;
-          var laser = new Laser(ship.x, ship.y);
-          lasers.push(laser);
-          setTimeout(changeLaserShotTimer,300);
-        }
-    }
+    // if (keyCode == UP_ARROW) {                  //comdando spara laser
+    //     if(laserShotTimer == 0){
+    //       laserShotTimer = 1;
+    //       var laser = new Laser(ship.x, ship.y);
+    //       lasers.push(laser);
+    //       setTimeout(changeLaserShotTimer,300);
+    //     }
+    // }
     if(keyCode == 13){
         if(gameStatus==5 || gameStatus == 6){     //dalla legenda o da un avvio successivo al primo al gioco
           gameStatus = 1;

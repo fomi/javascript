@@ -3,16 +3,14 @@ function Alien(x, y) {
     this.y = y;
     this.r = 8;
     this.color = [0,0,255];
-    this.speed = 0.4;
+    this.speed = 0.3;
     this.points = 0;
     this.model;
 
     this.show = function() {
         if(this.r == 8){
-          // this.debug0();
           image(this.model,this.x-this.r,this.y-this.r );
         }else{
-          // this.debug1();
           image(this.model,this.x-this.r,this.y-(this.r-5) );
         }
     }

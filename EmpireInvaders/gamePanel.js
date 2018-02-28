@@ -67,7 +67,6 @@ function GamePanel(gameOverModel, victoryModeltory,shipModel,scoreModel,textGame
       textSize(30);
       text('Left arrow --> move left',150,200);
       text('Right arrow --> move right',150,225);
-      text('Up arrow --> laser shot',150,250);
       this.pressEnter('Quit and play press ENTER');
     }
     this.credits = function(){

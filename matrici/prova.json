@@ -1,0 +1,16 @@
+{
+  "players": [{
+      "name": "mirco",
+      "points": 30
+    },
+    {
+      "name": "ressa",
+      "points": 21
+    },
+    {
+      "name": "tiziana",
+      "points": 23
+    }
+  ]
+
+}
