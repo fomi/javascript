@@ -6,7 +6,7 @@ var alienLasers = [];     //array laser degli alieni
 var aliensFleet = [];     //flotta alieni
 var direction;            //direzione movimento alieni +1dx -1sx
 
-var laserShotTimer;
+var laserShotTimer;       //timer per sparare laser dalla nave de giocatore
 
 var moveAlienFlag;        //se 1 la flotta aliena viene shiftata verso il basso
 var aliensFleetRow;       //numero di righe di alieni nella flotta
@@ -48,34 +48,34 @@ var explosion = [];       //array delle esplosioni nave/laser laser/laser
 var hitShipFlag;          //flag se la nave viene colpita   //OK
 
 var textGameFont;         //font per punteggio a 8 bit
+/////
+var stopInputFlag;        //flag per immissione del nome giocatore
+var nameString;           //stringa contenente il nome giocatore
+var player;
+var sendFlag;
+/////
 
 function preload(){
     loadModTextFont();
-
-    gameStartModel[0]= loadImage('images/gameTitle.png');
-    gameStartModel[1]= loadImage('models/alien2_white_bigger.png');
-    gameStartModel[2]= loadImage('models/alien1_big.png');
-    gameStartModel[3]= loadImage('models/alien0_big.png');
-    gameStartModel[4]= loadImage('models/ship_start.png');
-
 }
 
 function setup() {
-    gameStatus=0;          //flag di gioco, per passare da status a status DEFAULT 0
-    laserShotTimer = 0;
-    gameSetup();          //setup variabili del gioco
+    nameString="";          //nome giocatore non nel gameSetup() perchè non deve essere cancellato
+    player = new Player();
+    sendFlag = 1;
+    gameSetup();            //setup variabili del gioco
 }
 
 function draw() {
     background(backgImage);
     switch(gameStatus){
-      case 0:   //schermata di start
+      case 0:   //SCHERMATA DI INIZIO
         gamePanel.firstStartPanel();
         console.log('press enter');
         noLoop();
         break;
 
-      case 1:   //gioco
+      case 1:   //GIOCO
         autoFire();                 //fuoco automatico della nave
         alienLasersShot();          //colpi delle navi aliene
         shipLaserShot();            //colpi della navicella
@@ -90,42 +90,68 @@ function draw() {
         showExplosions();           //visualizza e elimina le esplosioni
         break;
 
-      case 2:   //game over
+      case 2:   //GAME OVER
         deleteAll();
-        gamePanel.flag=1;
-        gamePanel.statusRect();
-        gamePanel.show(gamePoints,ship.hp);
+        gamePanel.statusRect(gameStatus);
+        gamePanel.show(gamePoints,ship.hp,nameString);
         noLoop();
         break;
 
-      case 3:   //vittoria
+      case 3:   //VITTORIA
         deleteAll();
-        gamePanel.flag=2;
-        gamePanel.statusRect();
-        gamePanel.show(gamePoints,ship.hp);
-        console.log('vittoria');
-        gamePanel.flag=1;
+        player.name=nameString;                            //assegnazione nome preso in input e punteggio giocatore
+        player.score=gamePoints;
+        sendPlayerStatToServer(player);                     //funzione invio file a php
+        gamePanel.statusRect(gameStatus);                   //settaggio del riquadro di vittoria
+        gamePanel.show(gamePoints,ship.hp,nameString);      //mostra pannello info
+        gamePanel.loadFile();                              //caricamento del rank
         noLoop();
         break;
 
-      case 4:   //restart del gioco
-        gameStatus=5;
+      case 4:   //RESTART DEI DATI DI GIOCO
         gameSetup();
+        gameStatus=5;
         break;
 
-      case 5:   //schermata di riavvio successivo al primo
+      case 5:   //RIAVVIO SUCCESSIVO AL PRIMO
         gamePanel.startPanel();
-        console.log('riavvio');
         noLoop();
         break;
 
-      case 6:   //legenda comandi
-        gamePanel.gameCommand();
+      case 6:   //LEGENDA COMANDI INSERIMENTO NOME
+        stopInputFlag =0;   //disattivazione del flag di stop dell'input
+        sendFlag=1;         //attivazione del flag di invio dei dati del giocatore
+        gamePanel.gameCommand(nameString);
+        break;
+
+      case 7:   //RANK
+        gamePanel.playerRankPanel();          //mostra pannello di rank dei giocatori
         noLoop();
         break;
     }
 }
 
+function sendPlayerStatToServer(player){
+  if(sendFlag==1){
+    var myjson = JSON.stringify(player);
+    console.log(myjson);
+    request= new XMLHttpRequest();
+    request.onreadystatechange = alertContents;
+    request.open("POST", "playerScore.php", true);
+    request.setRequestHeader("Content-type", "application/json");
+    request.send(myjson);
+    sendFlag=0;
+  }
+}
+function alertContents() {
+    if (request.readyState === XMLHttpRequest.DONE) {
+      if (request.status === 200) {
+            alert(request.responseText);
+      } else {
+        alert('There was a problem with the request.');
+      }
+    }
+  }
 function loadModTextFont(){
   backgImage = loadImage('images/backg.png');               //immagine di background
   alienModel0 = loadImage('models/alien0_white.png');       //modello nave aliena
@@ -138,13 +164,18 @@ function loadModTextFont(){
   scoreModel = loadImage('images/score.png');               //scritta score punteggio
   textGameFont = loadFont('assets/font.ttf');               //font per punteggio a 8 bit
 
+  gameStartModel[0]= loadImage('images/gameTitle.png');     //modelli schermata iniziale
+  gameStartModel[1]= loadImage('models/alien2_white_bigger.png');
+  gameStartModel[2]= loadImage('models/alien1_big.png');
+  gameStartModel[3]= loadImage('models/alien0_big.png');
+  gameStartModel[4]= loadImage('models/ship_start.png');
+
   var tmp;                          //caricamento dei modelli delle esplosioni
   for(var i = 0; i<7; i++){
     tmp = 'models/boom'+i+'.png';
     expModel[i] = loadImage(tmp);
   }
 }
-
 function autoFire(){
   if(laserShotTimer == 0){
     laserShotTimer = 1;
@@ -153,7 +184,6 @@ function autoFire(){
     setTimeout(changeLaserShotTimer,300);
   }
 }
-
 function gameSetup(){
   createCanvas(600, 500);     //creazione campo di gioco
 
@@ -161,14 +191,14 @@ function gameSetup(){
   gamePanel = new GamePanel(gamePanGOModel, gamePanViModel,shipHPModel,scoreModel,textGameFont,gameStartModel);//oggetto pannello di gioco
 
   gamePoints=0;               //punti di gioco DEFAULT 0
-  shipHP = 3;                 //vite della navicella DEFAULT 3
+  shipHP = 1;                 //vite della navicella DEFAULT 3
   ship.hp = shipHP;           //assegnazione punti vita all'oggetto ship
   ship.model = shipModel;     //assegnazione modello nave giocatore
 
   lasersCrashFlag = 0;        //variabile per lo scontro fra laser DEFAULT 0
 
   aliensFleetRow = 8;         //numero di righe di alieni nella flotta DEFAULT 8
-  aliensPerRow = 10;          //numero di alieni per riga DEFAULT 10
+  aliensPerRow = 10;           //numero di alieni per riga DEFAULT 10
   moveAlienFlag = 0;          //se 1 gli alieni vengono shiftati verso il basso DEFAULT 0
   direction = 1;              //direzione spostamento aliens DEFAULT 1
   distBetwRow = 20;           //distanza alieni fra le righe in pixel DEFAULT 20
@@ -177,6 +207,11 @@ function gameSetup(){
 
   moShipFlag = 0;             //variabile di condizione generazione navi madri DEFAULT 0
   hitShipFlag = 0;            //flag se la nave viene colpita DEFAULT 0,1 colpita
+
+  gameStatus=0;               //flag di gioco, per passare da status a status DEFAULT 0
+  laserShotTimer = 0;         //timer per sparare laser dalla nave de giocatore DEFAULT 0
+  stopInputFlag =1;           //flag di stop per immissione del nome giocatore, DEFAULT 1
+  //nameString="";              //stringa che conterrà il nome del giocatore DEFAULT ""
 
   for(var i=0;i<aliensFleetRow;i++){
       aliensFleet[i] = [];    //creazione di array nested
@@ -193,7 +228,6 @@ function gameSetup(){
     }
   }
 }
-
 function gameCommand(){
   if(keyIsDown(LEFT_ARROW)){          //comdando movimento sx
     ship.move(-1);
@@ -202,45 +236,50 @@ function gameCommand(){
     ship.move(1);
   }
 }
-
 function changeLaserShotTimer(){
   laserShotTimer = 0;
 }
-
 function keyPressed() {
-    // if (keyCode == UP_ARROW) {                  //comdando spara laser
-    //     if(laserShotTimer == 0){
-    //       laserShotTimer = 1;
-    //       var laser = new Laser(ship.x, ship.y);
-    //       lasers.push(laser);
-    //       setTimeout(changeLaserShotTimer,300);
-    //     }
-    // }
-    if(keyCode == 13){
+    //cattura input per nome del giocatore e lo aggiunge alla stringa nome,
+    if(stopInputFlag!=1 && gameStatus!=1){
+        if(keyCode>=48 && keyCode<=90 && nameString.length<10){     //immissione di soli numeri o caratteri non superando i 10 caratteri
+          nameString=nameString+key;
+        }
+        if(keyCode == 8){                 //attivazione tasto di BACKSPACE se si è sbagliato il nome
+          nameString=nameString.slice(0, -1);
+        }
+    }
+
+
+
+    if(keyCode == ENTER){
         if(gameStatus==5 || gameStatus == 6){     //dalla legenda o da un avvio successivo al primo al gioco
           gameStatus = 1;
         }
-        if(gameStatus==2 || gameStatus==3){       //dalla vittoria/gameover ad un reavvio successivo al primo
+        if(gameStatus==2 || gameStatus ==7){       //dalla gameover/rank ad un reavvio successivo al primo
           gameStatus = 4;
+        }
+        if(gameStatus==3){                        //schermata di classifica
+          gameStatus = 7;
         }
         if(gameStatus==0){                        //dal primo avvio alla legenda dei comandi
           gameStatus = 6;
         }
         loop();
     }
+
     if(keyCode == 67){                            //67 è il tasto c, da un avvio successivo al primo alla legenda dei comandi
       if(gameStatus==5){
         gameStatus=6;
         console.log('cacca');
+        nameString="";
       }
       loop();
     }
 }
-
 function getRndInteger(min, max) {
     return Math.floor(Math.random() * (max - min) ) + min;          //funz generazione numero casuale
 }
-
 function alienLasersShot(){
   for(var i=0;i<aliensFleet.length;i++){
     for(var j=0;j<aliensFleet[i].length;j++){
@@ -271,7 +310,6 @@ function alienLasersShot(){
       }
   }
 }
-
 function shipLaserShot(){
   for (var k = 0; k < lasers.length; k++) {
       lasers[k].showRedLaser();
@@ -307,7 +345,6 @@ function shipLaserShot(){
       }
   }
 }
-
 function moveAliensY(){
   for(var i=0;i<aliensFleet.length;i++){
 
@@ -331,7 +368,6 @@ function moveAliensY(){
     moveAlienFlag = 0;
   }
 }
-
 function moveAliensX(){
   for(var i=0;i<aliensFleet.length;i++){
     for(var j=0;j<aliensFleet[i].length;j++){
@@ -340,7 +376,6 @@ function moveAliensX(){
     }
   }
 }
-
 function deleteAll(){
   for (var k = alienLasers.length-1; k >=0 ; k--) {
     alienLasers.splice(k,1);
@@ -353,35 +388,17 @@ function deleteAll(){
   }
 
 }
-
 function gameConditionStats(){
-
   if(aliensFleet.length != 0){
     if(aliensFleet[aliensFleet.length-1][0].y>=450 || ship.hp==0){     //game over se gli aliens arrivano in base o se la vita della nave è zero
-        // gamePanel.flag=1;
-        // aliensFleet.length=0 ;
-        // alienLasers.length=0;
-        // shipLaserShot.length=0;
-        // motherShips.length=0;
         gameStatus = 2;
-        // noLoop();
     }
   }
-
-  if(aliensFleet.length==0 && gamePanel.flag==0){
-      // gamePanel.flag = 2;
-      // aliensFleet.length=0;
-      // alienLasers.length=0;
-      // shipLaserShot.length=0;
-      // motherShips.length=0;
+  if(aliensFleet.length==0){   ///modificato 7/03  && gamePanel.flag==0
       gameStatus = 3;
-      // noLoop();
   }
-
-  gamePanel.show(gamePoints,ship.hp);
-
+  gamePanel.show(gamePoints,ship.hp,nameString);
 }
-
 function lasersCrashs(){
   //scorrimento dal fondo dei laser alieni e del giocatore, se si incontrano vengono eliminati
   //e visualizzata un'esplosione, inoltre vengono aggiunti due punti
@@ -404,12 +421,10 @@ function lasersCrashs(){
     }
   }
 }
-
 function getExplosion(laserX,laserY){
   var rand = getRndInteger(0,7);        //viene inizializzata esplosione
   explosion.push(new Explosion(laserX,laserY,expModel[rand],millis()));
 }
-
 function showExplosions(){
     for(var i=explosion.length-1;i>=0;i--){
       explosion[i].show();
@@ -419,7 +434,6 @@ function showExplosions(){
     }
 
 }
-
 function getMotShip(){
 
   if(alienDestCounter%10 == 0 && moShipFlag != alienDestCounter && alienDestCounter != 80){
@@ -447,7 +461,6 @@ function getMotShip(){
     }
   }
 }
-
 function aliSpeedIncr(){
   if(alienDestCounter%10 == 0 && speedFlag != alienDestCounter){
     for(var i = 0; i< aliensFleet.length; i++){
@@ -458,7 +471,6 @@ function aliSpeedIncr(){
     speedFlag = alienDestCounter;
   }
 }
-
 function gamePauseHitShip(laserX,laserY){
   //se la nave viene colpita si ferma il gioco per 3 secondi e poi riprende
   if(hitShipFlag == 1 && ship.hp!=0){
