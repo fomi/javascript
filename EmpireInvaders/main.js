@@ -191,7 +191,7 @@ function gameSetup(){
   gamePanel = new GamePanel(gamePanGOModel, gamePanViModel,shipHPModel,scoreModel,textGameFont,gameStartModel);//oggetto pannello di gioco
 
   gamePoints=0;               //punti di gioco DEFAULT 0
-  shipHP = 1;                 //vite della navicella DEFAULT 3
+  shipHP = 3;                 //vite della navicella DEFAULT 3
   ship.hp = shipHP;           //assegnazione punti vita all'oggetto ship
   ship.model = shipModel;     //assegnazione modello nave giocatore
 
