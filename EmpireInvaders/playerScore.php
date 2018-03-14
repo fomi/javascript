@@ -12,36 +12,19 @@
     $stringFromFile= file_get_contents("rank.json");          //dati letti dal file json del rank
     $dataFromFile = json_decode($stringFromFile, false);      //decodifica dei dati
 
-    // // //scorre l'array
-    // echo "ARRAY CARICATO DA JSON"."<br>";
-    // $index=0;
-    //
-    //   foreach ($dataFromFile as $value){
-    //     echo $index." ".$value->name." ".$value->score."<br>";
-    //     $index++;
-    //   }
-
-    //
     // // //inserimento valore da javascript nel array letto da file
     array_push($dataFromFile,$data);
-    // // //funzione per comparare lo score dei vari oggetti
-    // //
+    //funzione per comparare lo score dei vari oggetti
     function cmp($a, $b){
         if($a == $b){
           return 0;
         }
         return($a->score > $b->score) ? -1 : 1;
     }
-    
+
     //funzione per riordinare array con funzione definita da utente
     usort($dataFromFile, "cmp");
-    //
-    // echo "ARRAY CARICATO DA JSON ORDINATO"."<br>";
-    // $index=0;
-    // foreach ($dataFromFile as $value){
-    //   echo $index." ".$value->name." ".$value->score."<br>";
-    //   $index++;
-    // }
+
 
     //codifica del nuovo array con nuovo valore e riordinato in json
     $dataToWrite = json_encode($dataFromFile);
